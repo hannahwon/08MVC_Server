@@ -48,11 +48,11 @@ public class ProductController {
 	// @RequestMapping("/addProductView.do")
 	// public String addUserView() throws Exception {
 	@RequestMapping(value = "addProduct", method = RequestMethod.GET)
-	public String addUser() throws Exception {
+	public String addProduct() throws Exception {
 
 		System.out.println("/product/addProduct : GET");
 
-		return "redirect:/product/addProductView.jsp";
+		return "forward:/product/addProductView.jsp";
 	}
 
 	// @RequestMapping("/addProduct.do")
@@ -80,10 +80,13 @@ public class ProductController {
 		// Cookie History (Spring framework 사용)
 		CookieGenerator cookie = new CookieGenerator();
 
-		history = history + "," + product.getProdNo() + "/" + product.getProdName();
-
-		cookie.setCookieName("history");
-		cookie.addCookie(response, history);
+		
+		history = history+prodNo;
+		String no = Integer.toString(prodNo);
+		//cookie.setCookieName("history");
+		cookie.setCookieName("history"+no);
+		cookie.addCookie(response,no);
+		//cookie.addCookie(response, history);
 
 		// Model 과 View 연결
 		model.addAttribute("product", product);

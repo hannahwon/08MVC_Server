@@ -38,6 +38,29 @@ public class UserRestController {
 		System.out.println(this.getClass());
 	}
 	
+	@Value("#{commonProperties['pageUnit']}")
+	int pageUnit;
+	@Value("#{commonProperties['pageSize']}")
+	int pageSize;
+	
+	@RequestMapping( value="json/addUser", method=RequestMethod.GET)
+	public User addUser(@ModelAttribute User user) throws Exception{
+		
+		System.out.println("/user/json/addUser : GET");
+		
+		//Business Logic
+		return user ;
+	}
+	
+	@RequestMapping( value="json/addUser", method=RequestMethod.POST)
+	public User addUser() throws Exception{
+		
+		System.out.println("/user/json/addUser : POST");
+		
+		//Business Logic
+		return addUser();
+	}
+	
 	@RequestMapping( value="json/getUser/{userId}", method=RequestMethod.GET )
 	public User getUser( @PathVariable String userId ) throws Exception{
 		
@@ -61,5 +84,58 @@ public class UserRestController {
 		}
 		
 		return dbUser;
+	}
+	
+	@RequestMapping( value="json/updateUser", method=RequestMethod.GET )
+	public User updateUser( @ModelAttribute User user ,
+								@RequestBody String userId ,
+									Model model ) throws Exception{
+
+		System.out.println("/user/json/updateUser : GET");
+		
+		//Business Logic
+		return userService.getUser(userId);
+	}
+
+	@RequestMapping( value="json/updateUser", method=RequestMethod.POST )
+	public User updateUser( @ModelAttribute("user") User user , 
+							Model model , 
+							HttpSession session) throws Exception{
+
+		System.out.println("/user/json/updateUser : POST");
+		//Business Logic
+		userService.updateUser(user);
+		
+		String sessionId=((User)session.getAttribute("user")).getUserId();
+		if(sessionId.equals(user.getUserId())){
+			session.setAttribute("user", user);
+		}
+		
+		return user;
+	}
+	
+	@RequestMapping( value="json/listUser" )
+	public Map<String, Object> listUser( @ModelAttribute("search") Search search , Model model , HttpServletRequest request) throws Exception{
+		
+		System.out.println("/user/json/listUser : GET / POST");
+		
+		if(search.getCurrentPage() ==0 ){
+			search.setCurrentPage(1);
+		}
+		search.setPageSize(pageSize);
+		
+		// Business logic 수행
+		Map<String , Object> map=userService.getUserList(search);
+		
+		Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("totalCount")).intValue(), pageUnit, pageSize);
+		System.out.println(resultPage);
+		
+		// Model 과 View 연결
+		model.addAttribute("list", map.get("list"));
+		map.put("resultPage", resultPage);
+		map.put("search", search);
+		
+		
+		return map ;
 	}
 }
