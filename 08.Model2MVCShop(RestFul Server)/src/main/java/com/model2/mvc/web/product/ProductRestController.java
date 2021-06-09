@@ -102,18 +102,12 @@ public class ProductRestController {
 	}
 	
 	@RequestMapping( value="json/updateProduct", method=RequestMethod.POST )
-	public Product updateProduct( @ModelAttribute("product") Product product , 
-							Model model , 
-							HttpSession session, User user) throws Exception{
+	public Product updateProduct( @ModelAttribute("product") Product product) throws Exception{
 
 		System.out.println("/user/json/updateUser : POST");
 		//Business Logic
 		productService.updateProduct(product);
 		
-		String sessionId=((User)session.getAttribute("user")).getUserId();
-		if(sessionId.equals(user.getUserId())){
-			session.setAttribute("user", user);
-		}
 		
 		return product;
 	}
